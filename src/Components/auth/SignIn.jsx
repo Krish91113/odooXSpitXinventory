@@ -6,10 +6,16 @@ const Signin = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    loginId: '',
-    password: ''
+    loginId: "",
+    password: "",
   });
-const navigate = useNavigate();
+
+  const [status, setStatus] = useState({
+    loading: false,
+    error: "",
+    success: "",
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -17,22 +23,52 @@ const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Submitted:", formData);
-    alert("Login info logged to console");
+
+    setStatus({ loading: true, error: "", success: "" });
+
+    try {
+      await signIn.email(
+        {
+          email: formData.loginId,
+          password: formData.password,
+        },
+        {
+          onSuccess: () => {
+            setStatus({
+              loading: false,
+              error: "",
+              success: "Login successful!",
+            });
+
+            setTimeout(() => navigate("/dashboard"), 800);
+          },
+
+          onError: (error) => {
+            setStatus({
+              loading: false,
+              error: error?.message || "Login failed",
+              success: "",
+            });
+          },
+        }
+      );
+    } catch (err) {
+      setStatus({
+        loading: false,
+        error: err.message || "Something went wrong",
+        success: "",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 sm:px-6 lg:px-8">
-      
-      {/* Main Card */}
-      <div className="max-w-md w-full space-y-8 bg-white border border-gray-200 p-8 rounded-2xl shadow-xl">
-        
-        {/* Header */}
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="max-w-md w-full space-y-8 bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-zinc-400">
             Sign in to access your inventory
           </p>
         </div>
@@ -46,7 +82,10 @@ const navigate = useNavigate();
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="loginId" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="loginId"
+                className="block text-sm font-medium text-zinc-400 mb-1"
+              >
                 Login ID
               </label>
               <input
@@ -54,8 +93,8 @@ const navigate = useNavigate();
                 name="loginId"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
-                placeholder="Enter your Login ID"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition"
+                placeholder="Enter your email"
                 value={formData.loginId}
                 onChange={handleChange}
               />
@@ -63,20 +102,19 @@ const navigate = useNavigate();
 
             {/* Password */}
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <a href="#" className="text-xs text-gray-600 hover:text-gray-900 transition">
-                  Forgot password?
-                </a>
-              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-zinc-400 mb-1"
+              >
+                Password
+              </label>
+
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
+                className="appearance-none w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
@@ -98,24 +136,34 @@ const navigate = useNavigate();
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition duration-200 shadow-lg"
-              onClick={navigate("/dashboard")}
-            >
-              Sign In
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={status.loading}
+            className="w-full py-3 px-4 bg-white text-black rounded-lg font-bold hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {status.loading ? "Signing In..." : "Sign In"}
+          </button>
 
           <div className="text-center text-sm">
-            <p className="text-gray-600">
-              Don't have an account?{' '}
-              <a href="/signup" className="font-medium text-gray-900 hover:underline">
+            <p className="text-zinc-500">
+              Don't have an account?{" "}
+              <a
+                href="/signup"
+                className="font-medium text-white hover:underline"
+              >
                 Create account
               </a>
-            </p>    
+            </p>
+          </div>
+          <div className="text-center text-sm">
+            <p className="text-zinc-500">
+              <a
+                href="/forgetpassword"
+                className="font-medium text-white hover:underline"
+              >
+                ForgetPassword
+              </a>
+            </p>
           </div>
         </form>
       </div>

@@ -16,4 +16,4 @@ const authClient = createAuthClient({
 });
 
 // You must extract methods AFTER creating authClient
-export const { verifyEmail,signIn, signOut, signUp, useSession } = authClient;
+export const { requestPasswordReset,resetPassword,verifyEmail,signIn,signOut, signUp, useSession } = authClient;

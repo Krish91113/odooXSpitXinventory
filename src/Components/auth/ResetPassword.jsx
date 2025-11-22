@@ -37,10 +37,10 @@ const ResetPassword = () => {
     }
 
     // Validate password length
-    if (formData.password.length < 6 || formData.password.length > 10) {
+    if (formData.password.length < 6 || formData.password.length > 12) {
       setStatus({
         loading: false,
-        error: "Password must be between 6-10 characters",
+        error: "Password must be between 6-12 characters",
         success: "",
       });
       return;
@@ -144,12 +144,12 @@ const ResetPassword = () => {
                 <p
                   className={`text-xs mt-1 ${
                     formData.password.length >= 6 &&
-                    formData.password.length <= 10
+                    formData.password.length <= 12
                       ? "text-green-400"
                       : "text-red-400"
                   }`}
                 >
-                  Password must be between 6–10 characters
+                  Password must be between 6-12 characters
                 </p>
               )}
             </div>

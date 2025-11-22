@@ -67,10 +67,10 @@ const Signup = () => {
             }, 1500);
           },
 
-          onError: (error) => {
+          onError: (ctx) => {
             setStatus({
               loading: false,
-              error: error?.message || "Signup failed",
+              error: ctx.error?.message || "Signup failed",
               success: "",
             });
           },

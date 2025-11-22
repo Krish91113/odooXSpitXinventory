@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Signin = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ const Signin = () => {
     // TODO: Add your API auth call here
     alert("Login info logged to console");
   };
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4 sm:px-6 lg:px-8">
@@ -86,6 +88,7 @@ const Signin = () => {
             <button
               type="submit"
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-black bg-white hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-white transition duration-200"
+              onClick={() => navigate('/dashboard')}
             >
               Sign In
             </button>

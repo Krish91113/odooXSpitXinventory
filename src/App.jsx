@@ -16,12 +16,9 @@ import DeliveryList from "./Pages/delivery/DeliveryList";
 import DeliveryForm from "./Pages/delivery/DeliveryForm";
 import Settings from "./Pages/settings/Settings";
 import TestFont from "./Pages/Testfont";
-<<<<<<< HEAD
 import ReceiptForm from "./Pages/receipts/ReceiptForms";
-=======
 import ProtectedRoute from "./Components/ProtectedRoute";
 
->>>>>>> df5a5bc (feat: add dashboard page and protected routes)
 
 function App() {
   return (
@@ -35,12 +32,10 @@ function App() {
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-<<<<<<< HEAD
       
 <Route path="/receipts/new" element={<ReceiptForm />} />
 <Route path="/receipts/:id" element={<ReceiptForm />} />
 <Route path="/receipts/:id/edit" element={<ReceiptForm />} />
-=======
 
         {/* ---- PROTECTED ROUTES ---- */}
         <Route
@@ -115,7 +110,6 @@ function App() {
           }
         />
 
->>>>>>> df5a5bc (feat: add dashboard page and protected routes)
       </Routes>
     </BrowserRouter>
   );

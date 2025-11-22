@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signIn } from "../../lib/auth";
 
 const Signin = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    loginId: '',
-    password: ''
+    loginId: "",
+    password: "",
+  });
+
+  const [status, setStatus] = useState({
+    loading: false,
+    error: "",
+    success: "",
   });
 
   const handleChange = (e) => {
@@ -12,24 +21,49 @@ const Signin = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Submission Logic
-    console.log("Login Submitted:", formData);
-    
-    // TODO: Add your API auth call here
-    alert("Login info logged to console");
+
+    setStatus({ loading: true, error: "", success: "" });
+
+    try {
+      await signIn.email(
+        {
+          email: formData.loginId,
+          password: formData.password,
+        },
+        {
+          onSuccess: () => {
+            setStatus({
+              loading: false,
+              error: "",
+              success: "Login successful!",
+            });
+
+            setTimeout(() => navigate("/dashboard"), 800);
+          },
+
+          onError: (error) => {
+            setStatus({
+              loading: false,
+              error: error?.message || "Login failed",
+              success: "",
+            });
+          },
+        }
+      );
+    } catch (err) {
+      setStatus({
+        loading: false,
+        error: err.message || "Something went wrong",
+        success: "",
+      });
+    }
   };
-  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black px-4 sm:px-6 lg:px-8">
-      
-      {/* Main Card */}
-      <div className="max-w-md w-full space-y-8 bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
-        
-        {/* Header */}
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="max-w-md w-full space-y-8 bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">
             Welcome Back
@@ -38,23 +72,29 @@ const Signin = () => {
             Sign in to access your inventory
           </p>
         </div>
-
-        {/* Form */}
+        {/* Status messages */}
+        {status.error && (
+          <p className="text-red-500 text-center text-sm">{status.error}</p>
+        )}
+        {status.success && (
+          <p className="text-green-500 text-center text-sm">{status.success}</p>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            
-            {/* Login ID */}
             <div>
-              <label htmlFor="loginId" className="block text-sm font-medium text-zinc-400 mb-1">
+              <label
+                htmlFor="loginId"
+                className="block text-sm font-medium text-zinc-400 mb-1"
+              >
                 Login ID
               </label>
               <input
                 id="loginId"
                 name="loginId"
-                type="text"
+                type="email"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-black border border-zinc-800 placeholder-zinc-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-200 sm:text-sm"
-                placeholder="Enter your Login ID"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition"
+                placeholder="Enter your email"
                 value={formData.loginId}
                 onChange={handleChange}
               />
@@ -62,43 +102,55 @@ const Signin = () => {
 
             {/* Password */}
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="password" className="block text-sm font-medium text-zinc-400">
-                  Password
-                </label>
-                <a href="#" className="text-xs text-zinc-500 hover:text-white transition">
-                  Forgot password?
-                </a>
-              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-zinc-400 mb-1"
+              >
+                Password
+              </label>
+
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-black border border-zinc-800 placeholder-zinc-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition duration-200 sm:text-sm"
+                className="appearance-none w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
               />
+
+              {/* Password Requirement */}
+              {formData.password.length > 0 && (
+                <p
+                  className={`text-xs mt-1 ${
+                    formData.password.length >= 6 &&
+                    formData.password.length <= 10
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  Password must be between 6–10 characters
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-black bg-white hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-white transition duration-200"
-              onClick={() => navigate('/dashboard')}
-            >
-              Sign In
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={status.loading}
+            className="w-full py-3 px-4 bg-white text-black rounded-lg font-bold hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {status.loading ? "Signing In..." : "Sign In"}
+          </button>
 
-          {/* Footer Link */}
           <div className="text-center text-sm">
             <p className="text-zinc-500">
-              Don't have an account?{' '}
-              <a href="/signup" className="font-medium text-white hover:underline">
+              Don't have an account?{" "}
+              <a
+                href="/signup"
+                className="font-medium text-white hover:underline"
+              >
                 Create account
               </a>
             </p>

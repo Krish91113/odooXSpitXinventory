@@ -17,6 +17,7 @@ import DeliveryList from "./Pages/delivery/DeliveryList";
 import DeliveryForm from "./Pages/delivery/DeliveryForm";
 import Settings from "./Pages/settings/Settings";
 import TestFont from "./Pages/Testfont";
+import ReceiptForm from "./Pages/receipts/ReceiptForms";
 
 function App() {
   return (
@@ -43,6 +44,10 @@ function App() {
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+      
+<Route path="/receipts/new" element={<ReceiptForm />} />
+<Route path="/receipts/:id" element={<ReceiptForm />} />
+<Route path="/receipts/:id/edit" element={<ReceiptForm />} />
       </Routes>
     </BrowserRouter>
   );

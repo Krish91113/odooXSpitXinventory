@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./Components/auth/SignUp";
 import Signin from "./Components/auth/SignIn";
 import EmailVerification from "./Components/auth/EmailVerification";
+import ForgetPassword from "./Components/auth/ForgetPassword";
+import ResetPassword from "./Components/auth/ResetPassword";
 
 import LandingPage from "./Pages/Homepage";
 import Dashboard from "./Components/auth/dashboard/DashbBoard";
@@ -39,7 +41,8 @@ function App() {
         <Route path="/delivery/:id/edit" element={<DeliveryForm />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/test-font" element={<TestFont />} />
+        <Route path="/forgetpassword" element={<ForgetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );

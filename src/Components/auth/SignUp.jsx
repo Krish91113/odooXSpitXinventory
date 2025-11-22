@@ -35,7 +35,7 @@ const Signup = () => {
       return;
     }
 
-    // Minimum length 6 (Better-Auth requirement)
+    // Password length validation
     if (formData.password.length < 6 || formData.password.length > 10) {
       setStatus({
         loading: false,
@@ -62,23 +62,21 @@ const Signup = () => {
       //         error: "",
       //         success: "Signup successful! Verification email sent.",
       //       });
-
       //       setTimeout(() => {
       //         navigate("/signin");
       //       }, 1500);
       //     },
-
-      //     onError: (error) => {
+      //     onError: (ctx) => {
       //       setStatus({
       //         loading: false,
-      //         error: error?.message || "Signup failed",
+      //         error: ctx.error?.message || "Signup failed",
       //         success: "",
       //       });
       //     },
       //   }
       // );
 
-      // Temporary success simulation
+      // Temporary success simulation (remove when backend is ready)
       console.log("Signup Data:", formData);
       setStatus({
         loading: false,

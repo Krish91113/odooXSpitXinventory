@@ -14,6 +14,7 @@ import MoveHistoryList from "./Pages/moveHistory/MoveHistoryList";
 import DeliveryList from "./Pages/delivery/DeliveryList";
 import DeliveryForm from "./Pages/delivery/DeliveryForm";
 import Settings from "./Pages/settings/Settings";
+import TestFont from "./Pages/Testfont";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/delivery/:id/edit" element={<DeliveryForm />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/test-font" element={<TestFont />} />
       </Routes>
     </BrowserRouter>
   );

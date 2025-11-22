@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Import Zodiak Font */
+/* Import Zodiak Font */
+@import './assets/fonts/Zodiak_Complete (1)/zodiak/zodiak.css';
+
+/* Apply Zodiak globally to EVERYTHING */
+@layer base {
+  * {
+    font-family: 'Zodiak', Georgia, serif;
+  }
+  
+  html {
+    font-family: 'Zodiak', Georgia, serif;
+  }
+  
+  body {
+    font-family: 'Zodiak', Georgia, serif;
+    font-weight: 400;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Zodiak', Georgia, serif;
+  }
+  
+  p, span, div, a, button, input, textarea, select, label {
+    font-family: 'Zodiak', Georgia, serif;
+  }
+}
+
+
+

@@ -110,7 +110,7 @@ const ActivityItem = ({ user, action, time, type }) => {
   };
 
   return (
-    <div className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition">
+    <div className="flex items-center gap-4 font-sans p-3 hover:bg-gray-50 rounded-lg transition">
       <div className={`h-2 w-2 rounded-full ${typeColors[type]}`}></div>
       <div className="flex-1">
         <p className="text-sm text-gray-900">

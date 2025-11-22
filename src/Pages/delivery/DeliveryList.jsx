@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../Components/auth/dashboard/Navbar';
+// import Navbar from '../../Components/auth/dashboard/Navbar';
 import DeliveryTable from './DeliveryTable';
 import { deliveryService } from '../../services/deliveryService';
 
@@ -32,7 +32,7 @@ const DeliveryList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ... (Header and Search sections remain same as your code) ... */}

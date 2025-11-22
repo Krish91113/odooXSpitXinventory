@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Navbar from '../../Components/auth/dashboard/Navbar';
+// import Navbar from '../../Components/auth/dashboard/Navbar';
 import { deliveryService } from '../../services/deliveryService';
 
 const DeliveryForm = () => {
@@ -151,7 +151,7 @@ const DeliveryForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         

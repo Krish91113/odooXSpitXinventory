@@ -1,4 +1,4 @@
-// import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from "better-auth/react";
 
 const authClient = createAuthClient({
   baseURL:`${import.meta.env.VITE_API_URL}/api/auth`, // must point to the auth route
@@ -8,4 +8,4 @@ const authClient = createAuthClient({
 // // // You must extract methods AFTER creating authClient
 // // export const { verifyEmail,signIn, signOut, signUp, useSession } = authClient;
 // // You must extract methods AFTER creating authClient
-// export const { requestPasswordReset,resetPassword,verifyEmail,signIn,signOut, signUp, useSession } = authClient;
+export const { requestPasswordReset,resetPassword,verifyEmail,signIn,signOut, signUp, useSession } = authClient;

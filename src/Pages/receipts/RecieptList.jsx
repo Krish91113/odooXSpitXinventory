@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../../Components/auth/dashboard/Navbar';
+// import Navbar from '../../Components/auth/dashboard/Navbar';
 import ReceiptsTable from './ReceiptTable';
 import { receiptService } from '../../services/receiptService';
 
@@ -36,7 +36,7 @@ const ReceiptsList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 font-sans">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         

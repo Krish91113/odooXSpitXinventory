@@ -1,14 +1,4 @@
-import React from 'react';
-  
-  const Auth = () =>  {
-	return (
-	  <div>
-	  </div>
-	);
-  }
-  
-  export default Auth;
-  import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from "better-auth/react";
 
 const authClient = createAuthClient({
   baseURL:`${import.meta.env.VITE_API_URL}/api/auth`, // must point to the auth route

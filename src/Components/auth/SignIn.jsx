@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { signIn } from "../../lib/auth";
+import { signIn } from "../../lib/auth";
 
 const Signin = () => {
   const navigate = useNavigate(); // ✅ Only declared ONCE

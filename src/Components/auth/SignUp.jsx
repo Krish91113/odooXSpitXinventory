@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-// import { signUp } from "../../lib/auth";
+import { signUp } from "../../lib/auth";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
@@ -49,44 +49,34 @@ const Signup = () => {
 
     try {
       // TODO: Uncomment when backend is ready
-      // await signUp.email(
-      //   {
-      //     email: formData.email,
-      //     password: formData.password,
-      //     name: formData.loginId,
-      //   },
-      //   {
-      //     onSuccess: () => {
-      //       setStatus({
-      //         loading: false,
-      //         error: "",
-      //         success: "Signup successful! Verification email sent.",
-      //       });
-      //       setTimeout(() => {
-      //         navigate("/signin");
-      //       }, 1500);
-      //     },
-      //     onError: (ctx) => {
-      //       setStatus({
-      //         loading: false,
-      //         error: ctx.error?.message || "Signup failed",
-      //         success: "",
-      //       });
-      //     },
-      //   }
-      // );
+      await signUp.email(
+        {
+          email: formData.email,
+          password: formData.password,
+          name: formData.loginId,
+        },
+        {
+          onSuccess: () => {
+            setStatus({
+              loading: false,
+              error: "",
+              success: "Signup successful! Verification email sent.",
+            });
+            setTimeout(() => {
+              navigate("/signin");
+            }, 1500);
+          },
+          onError: (ctx) => {
+            setStatus({
+              loading: false,
+              error: ctx.error?.message || "Signup failed",
+              success: "",
+            });
+          },
+        }
+      );
 
-      // Temporary success simulation (remove when backend is ready)
-      console.log("Signup Data:", formData);
-      setStatus({
-        loading: false,
-        error: "",
-        success: "Account created successfully!",
-      });
-
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1500);
+ 
 
     } catch (err) {
       setStatus({

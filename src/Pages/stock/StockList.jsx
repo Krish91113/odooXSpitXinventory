@@ -1,25 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import StockTable from './StockTable';
 import Navbar from '../../Components/auth/dashboard/Navbar';
+import { stockService } from '../../services/stockService';
 
 const StockList = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample Stock Data
-  const stockData = [
-    { id: 1, product: 'Desk', sku: 'DESK-001', category: 'Furniture', perUnitCost: 3000, onHand: 50, freeToUse: 45, warehouse: 'WH/Stock1', lastUpdated: '2024-01-20' },
-    { id: 2, product: 'Table', sku: 'TBL-001', category: 'Furniture', perUnitCost: 3000, onHand: 50, freeToUse: 50, warehouse: 'WH/Stock1', lastUpdated: '2024-01-20' },
-    { id: 3, product: 'Office Chair', sku: 'CHR-001', category: 'Furniture', perUnitCost: 1500, onHand: 120, freeToUse: 100, warehouse: 'WH/Stock2', lastUpdated: '2024-01-19' },
-    { id: 4, product: 'Monitor Stand', sku: 'MNT-001', category: 'Accessories', perUnitCost: 800, onHand: 30, freeToUse: 25, warehouse: 'WH/Stock1', lastUpdated: '2024-01-18' },
-    { id: 5, product: 'Filing Cabinet', sku: 'CAB-001', category: 'Storage', perUnitCost: 4500, onHand: 15, freeToUse: 12, warehouse: 'WH/Stock3', lastUpdated: '2024-01-17' }
-  ];
+  // Fetch Stock Data
+  useEffect(() => {
+    const fetchStock = async () => {
+      try {
+        const data = await stockService.getAll();
+        setStockData(data);
+      } catch (error) {
+        console.error("Error fetching stock:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStock();
+  }, []);
 
-  const filteredStock = stockData.filter(item => 
-    item.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter logic based on Populated Product Fields
+  const filteredStock = stockData.filter(item => {
+    const productName = item.productId?.name?.toLowerCase() || '';
+    const sku = item.productId?.sku?.toLowerCase() || '';
+    const category = item.productId?.category?.toLowerCase() || '';
+    const query = searchQuery.toLowerCase();
+
+    return productName.includes(query) || sku.includes(query) || category.includes(query);
+  });
+
+  // Calculate Stats dynamically
+  const stats = {
+    totalProducts: stockData.length,
+    // Assuming Product model has a 'cost' field. If not, default to 0.
+    totalValue: stockData.reduce((sum, item) => sum + ((item.productId?.cost || 0) * item.onHand), 0),
+    totalOnHand: stockData.reduce((sum, item) => sum + item.onHand, 0),
+    totalAvailable: stockData.reduce((sum, item) => sum + item.available, 0),
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 font-sans">
@@ -43,7 +65,7 @@ const StockList = () => {
             <div>
               <p className="text-sm font-bold text-blue-900 mb-1">Warehouse Details & Locations</p>
               <p className="text-xs font-medium text-blue-700">
-                Update stock quantities directly by clicking the edit icon in the table below.
+                Real-time view of inventory levels. Update quantities directly in the table below.
               </p>
             </div>
           </div>
@@ -94,10 +116,10 @@ const StockList = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <StatCard label="Total Products" value={stockData.length} icon={<BoxIcon />} color="blue" delay={0.3} />
-          <StatCard label="Total Stock Value" value={`₹${(stockData.reduce((sum, item) => sum + (item.perUnitCost * item.onHand), 0)).toLocaleString()}`} icon={<CurrencyIcon />} color="green" delay={0.4} />
-          <StatCard label="Total On Hand" value={stockData.reduce((sum, item) => sum + item.onHand, 0)} icon={<WarehouseIcon />} color="purple" delay={0.5} />
-          <StatCard label="Free to Use" value={stockData.reduce((sum, item) => sum + item.freeToUse, 0)} icon={<CheckIcon />} color="orange" delay={0.6} />
+          <StatCard label="Total Products" value={stats.totalProducts} icon={<BoxIcon />} color="blue" delay={0.3} />
+          <StatCard label="Total Stock Value" value={`₹${stats.totalValue.toLocaleString()}`} icon={<CurrencyIcon />} color="green" delay={0.4} />
+          <StatCard label="Total On Hand" value={stats.totalOnHand} icon={<WarehouseIcon />} color="purple" delay={0.5} />
+          <StatCard label="Available" value={stats.totalAvailable} icon={<CheckIcon />} color="orange" delay={0.6} />
         </div>
 
         {/* Stock Table */}
@@ -106,20 +128,11 @@ const StockList = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <StockTable stock={filteredStock} />
-        </motion.div>
-
-        {/* Bottom Note */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-8 flex items-center gap-3 bg-green-50/50 border border-green-100 p-4 rounded-xl text-green-700 text-sm font-medium"
-        >
-          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Note: You can edit stock quantities directly in the table.</span>
+          {loading ? (
+            <div className="text-center py-10">Loading stock data...</div>
+          ) : (
+            <StockTable stock={filteredStock} setStockData={setStockData} />
+          )}
         </motion.div>
 
       </main>

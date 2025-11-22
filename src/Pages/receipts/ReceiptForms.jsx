@@ -1,49 +1,126 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Navbar from '../../Components/auth/dashboard/Navbar';
 import ReceiptProductTable from './ReceiptProductTable';
-
+import { receiptService } from '../../services/receiptService';
 
 const ReceiptForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [formData, setFormData] = useState({
-    reference: 'WH/IN/0001',
+    reference: 'New', // Backend generates this
     receiveFrom: '',
     scheduleDate: new Date().toISOString().split('T')[0],
-    responsible: 'Current User (Auto)',
-    status: 'Draft', // Draft -> Ready -> Done
+    responsible: 'Current User', // You can fetch this from session if needed
+    status: 'Draft',
+    warehouseId: 'WH' // Required by your model
   });
 
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Desk', sku: 'DESK001', quantity: 6 }
-  ]);
+  const [products, setProducts] = useState([]);
 
-  // Handlers
+  // Fetch Data (Edit Mode)
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchData = async () => {
+        try {
+          setIsLoading(true);
+          const data = await receiptService.getById(id);
+          
+          setFormData({
+            reference: data.reference,
+            receiveFrom: data.receiveFrom,
+            scheduleDate: data.scheduleDate ? data.scheduleDate.split('T')[0] : '',
+            responsible: data.responsible || 'Current User',
+            status: data.status,
+            warehouseId: data.warehouseId
+          });
+
+          // Map backend items to frontend table
+          if (data.items) {
+            setProducts(data.items.map((item, index) => ({
+              id: index + 1,
+              // Handle if populate was used or not
+              productId: item.productId._id || item.productId, 
+              name: item.productId.name || 'Unknown Product', 
+              sku: item.productId.sku || 'N/A',
+              quantity: item.quantity
+            })));
+          }
+        } catch (err) {
+          console.error("Failed to fetch receipt", err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+  }, [id, isEditMode]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleStatusChange = (newStatus) => {
-    setFormData({ ...formData, status: newStatus });
+  // Create / Update Receipt
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Prepare payload according to your Mongoose Schema
+      const payload = {
+        warehouseId: formData.warehouseId,
+        receiveFrom: formData.receiveFrom,
+        scheduleDate: formData.scheduleDate,
+        items: products.map(p => ({
+          productId: p.productId, // Must be a valid MongoDB ObjectId
+          quantity: Number(p.quantity)
+        }))
+      };
+
+      if (isEditMode) {
+        await receiptService.update(id, payload);
+        alert("Receipt updated!");
+      } else {
+        // Create new
+        const created = await receiptService.create(payload);
+        navigate(`/receipts/${created._id}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save: " + (err.response?.data?.error || err.message));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleValidate = () => {
-    if (formData.status === 'Draft') handleStatusChange('Ready');
-    else if (formData.status === 'Ready') handleStatusChange('Done');
+  // Handle Status Changes
+  const handleStatusAction = async (action) => {
+    if (!isEditMode) return alert("Save the receipt first.");
+
+    try {
+      setIsLoading(true);
+      const res = await receiptService.updateStatus(id, action); // Calls /:id/status
+      setFormData(prev => ({ ...prev, status: res.updatedStatus }));
+    } catch (err) {
+      alert("Status update failed: " + err.response?.data?.error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
-  const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+  const handleCancel = async () => {
+    if (isEditMode && formData.status !== 'Done') {
+      if (window.confirm("Cancel this receipt?")) {
+        await handleStatusAction('CANCEL');
+        navigate('/receipts');
+      }
+    } else {
       navigate('/receipts');
     }
   };
@@ -60,23 +137,32 @@ const ReceiptForm = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6"
         >
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleValidate}
-              className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-all ${
-                formData.status === 'Done' ? 'bg-green-600 cursor-not-allowed opacity-50' : 'bg-gray-900 hover:bg-gray-800'
-              }`}
-              disabled={formData.status === 'Done'}
-            >
-              {formData.status === 'Draft' ? 'Mark as Todo' : formData.status === 'Ready' ? 'Validate' : 'Validated'}
-            </motion.button>
+          <div className="flex gap-3 flex-wrap">
+            {/* Logic for buttons based on your backend workflow */}
+            
+            {/* DRAFT State */}
+            {formData.status === 'Draft' && (
+              <>
+                <button onClick={handleSave} disabled={isLoading} className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
+                  Save Draft
+                </button>
+                {isEditMode && (
+                  <button onClick={() => handleStatusAction('TODO')} disabled={isLoading} className="px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all">
+                    Mark as Todo
+                  </button>
+                )}
+              </>
+            )}
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            {/* READY State */}
+            {formData.status === 'Ready' && (
+              <button onClick={() => handleStatusAction('VALIDATE')} disabled={isLoading} className="px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all">
+                Validate
+              </button>
+            )}
+
+            {/* DONE State */}
+            <button
               onClick={handlePrint}
               disabled={formData.status !== 'Done'}
               className={`px-6 py-2.5 border-2 font-bold rounded-xl transition-all ${
@@ -86,19 +172,20 @@ const ReceiptForm = () => {
               }`}
             >
               Print
-            </motion.button>
+            </button>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleCancel}
-              className="px-6 py-2.5 bg-red-50 text-red-600 border border-red-100 font-bold rounded-xl hover:bg-red-100 transition-all"
-            >
-              Cancel
-            </motion.button>
+            {/* Cancel Button */}
+            {formData.status !== 'Done' && formData.status !== 'Cancelled' && (
+              <button
+                onClick={handleCancel}
+                className="px-6 py-2.5 bg-red-50 text-red-600 border border-red-100 font-bold rounded-xl hover:bg-red-100 transition-all"
+              >
+                Cancel
+              </button>
+            )}
           </div>
 
-          {/* Status Tabs */}
+          {/* Status Badge */}
           <div className="bg-white border border-gray-200 p-1.5 rounded-xl shadow-sm flex">
             {['Draft', 'Ready', 'Done'].map((step) => (
               <div
@@ -115,26 +202,20 @@ const ReceiptForm = () => {
           </div>
         </motion.div>
 
-        {/* Main Form Card */}
+        {/* Main Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
           className="bg-white border border-gray-200 rounded-3xl shadow-xl p-8 md:p-10 relative overflow-hidden"
         >
-          {/* Background Decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-bl-full -z-10 opacity-50"></div>
-
-          {/* Title */}
           <div className="mb-8 border-b border-gray-100 pb-4">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight">{formData.reference}</h1>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+              {formData.reference}
+            </h1>
             <p className="text-gray-500 mt-1 font-medium">Receipt Reference</p>
           </div>
 
-          {/* Form Fields Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-10">
-            
-            {/* Left Column */}
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Receive From</label>
@@ -143,13 +224,13 @@ const ReceiptForm = () => {
                   name="receiveFrom"
                   value={formData.receiveFrom}
                   onChange={handleChange}
-                  placeholder="e.g. Vendor Name"
-                  className="w-full px-0 py-2 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent text-lg font-medium transition-colors placeholder-gray-300"
+                  disabled={formData.status !== 'Draft'}
+                  className="w-full px-0 py-2 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent text-lg font-medium disabled:text-gray-500"
+                  placeholder="Vendor Name"
                 />
               </div>
             </div>
 
-            {/* Right Column */}
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Schedule Date</label>
@@ -158,7 +239,8 @@ const ReceiptForm = () => {
                   name="scheduleDate"
                   value={formData.scheduleDate}
                   onChange={handleChange}
-                  className="w-full px-0 py-2 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent text-lg font-medium transition-colors text-gray-600"
+                  disabled={formData.status !== 'Draft'}
+                  className="w-full px-0 py-2 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent text-lg font-medium disabled:text-gray-500"
                 />
               </div>
 
@@ -166,74 +248,23 @@ const ReceiptForm = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">Responsible</label>
                 <input 
                   type="text" 
-                  name="responsible"
                   value={formData.responsible}
                   disabled
                   className="w-full px-0 py-2 border-b-2 border-gray-200 bg-gray-50/50 text-gray-500 text-lg font-medium cursor-not-allowed"
                 />
-                <p className="text-xs text-blue-500 mt-1 font-medium flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  Auto-filled with current user
-                </p>
               </div>
             </div>
           </div>
 
-          {/* Products Section */}
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <span className="w-1.5 h-8 bg-red-500 rounded-full"></span>
-              Products
-            </h2>
-            
-            <ReceiptProductTable
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Products</h2>
+            <ReceiptProductTable 
               products={products} 
               setProducts={setProducts} 
-              isEditable={formData.status !== 'Done'}
+              isEditable={formData.status === 'Draft'}
             />
           </div>
-
         </motion.div>
-
-        {/* Floating Notes (Desktop Only) */}
-        <div className="hidden xl:block">
-          {/* Left Note */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-            className="fixed left-10 top-1/3 w-64 p-6 border-2 border-dashed border-gray-300 rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm"
-          >
-            <h3 className="font-black text-gray-900 mb-3">Workflow Guide</h3>
-            <ul className="space-y-3 text-sm font-medium text-gray-600">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                Draft: Initial creation
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                Ready: Click "Mark as Todo"
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                Done: Click "Validate"
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* Right Note */}
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-            className="fixed right-10 top-1/3 w-64 p-6 border-2 border-dashed border-blue-200 rounded-2xl bg-blue-50/50 backdrop-blur-sm"
-          >
-            <h3 className="font-black text-blue-900 mb-2">Tip</h3>
-            <p className="text-sm text-blue-700 font-medium leading-relaxed">
-              You can only print the receipt once the status is <strong>Done</strong>.
-            </p>
-          </motion.div>
-        </div>
 
       </main>
     </div>

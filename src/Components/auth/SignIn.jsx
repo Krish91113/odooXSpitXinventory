@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signIn } from "../../lib/auth";
 
 const Signin = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     loginId: '',
     password: ''
@@ -12,7 +15,7 @@ const navigate = useNavigate();
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login Submitted:", formData);
     alert("Login info logged to console");
@@ -33,12 +36,15 @@ const navigate = useNavigate();
             Sign in to access your inventory
           </p>
         </div>
-
-        {/* Form */}
+        {/* Status messages */}
+        {status.error && (
+          <p className="text-red-500 text-center text-sm">{status.error}</p>
+        )}
+        {status.success && (
+          <p className="text-green-500 text-center text-sm">{status.success}</p>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            
-            {/* Login ID */}
             <div>
               <label htmlFor="loginId" className="block text-sm font-medium text-gray-700 mb-1">
                 Login ID
@@ -46,7 +52,7 @@ const navigate = useNavigate();
               <input
                 id="loginId"
                 name="loginId"
-                type="text"
+                type="email"
                 required
                 className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
                 placeholder="Enter your Login ID"
@@ -75,6 +81,20 @@ const navigate = useNavigate();
                 value={formData.password}
                 onChange={handleChange}
               />
+
+              {/* Password Requirement */}
+              {formData.password.length > 0 && (
+                <p
+                  className={`text-xs mt-1 ${
+                    formData.password.length >= 6 &&
+                    formData.password.length <= 10
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  Password must be between 6–10 characters
+                </p>
+              )}
             </div>
           </div>
 
@@ -89,7 +109,6 @@ const navigate = useNavigate();
             </button>
           </div>
 
-          {/* Footer Link */}
           <div className="text-center text-sm">
             <p className="text-gray-600">
               Don't have an account?{' '}

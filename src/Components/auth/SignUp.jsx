@@ -1,51 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { signUp } from "../../lib/auth";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    loginId: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    loginId: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState({
+    loading: false,
+    error: "",
+    success: "",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    if (error) setError('');
+    if (status.error) {
+      setStatus({ ...status, error: "" });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Password match check
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setStatus({ loading: false, error: "Passwords do not match", success: "" });
       return;
     }
 
+    // Minimum length 6 (Better-Auth requirement)
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+      setStatus({
+        loading: false,
+        error: "Password must be at least 6 characters long.",
+        success: "",
+      });
       return;
     }
 
-    const submissionData = {
-      loginId: formData.loginId,
-      password: formData.password,
-      email: formData.email
-    };
+    setStatus({ loading: true, error: "", success: "" });
 
-    console.log("Submitting to Inventory System:", submissionData);
-    alert("Signup Successful! Check console for data.");
+    try {
+      await signUp.email(
+        {
+          email: formData.email,
+          password: formData.password,
+          name: formData.loginId, // storing loginId as name
+        },
+        {
+          onSuccess: () => {
+            setStatus({
+              loading: false,
+              error: "",
+              success: "Signup successful! Verification email sent.",
+            });
+
+            setTimeout(() => {
+              navigate("/signin");
+            }, 1500);
+          },
+
+          onError: (error) => {
+            setStatus({
+              loading: false,
+              error: error?.message || "Signup failed",
+              success: "",
+            });
+          },
+        }
+      );
+    } catch (err) {
+      setStatus({
+        loading: false,
+        error: err.message || "Something went wrong",
+        success: "",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 sm:px-6 lg:px-8">
-      
-      {/* Main Card */}
-      <div className="max-w-md w-full space-y-8 bg-white border border-gray-200 p-8 rounded-2xl shadow-xl">
-        
-        {/* Header */}
+    <div className="min-h-screen flex items-center justify-center bg-black px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
+
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             Create Account
@@ -55,39 +98,46 @@ const Signup = () => {
           </p>
         </div>
 
-        {/* Form */}
+        {/* Error */}
+        {status.error && (
+          <p className="text-red-400 text-center bg-red-500/10 py-2 rounded border border-red-500/20 text-sm">
+            {status.error}
+          </p>
+        )}
+
+        {/* Success */}
+        {status.success && (
+          <p className="text-green-400 text-center bg-green-500/10 py-2 rounded border border-green-500/20 text-sm">
+            {status.success}
+          </p>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            
+
             {/* Login ID */}
             <div>
-              <label htmlFor="loginId" className="block text-sm font-medium text-gray-700 mb-1">
-                Login ID
-              </label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1">Login ID</label>
               <input
-                id="loginId"
                 name="loginId"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
-                placeholder="Enter your unique ID"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg"
+                placeholder="Choose a unique ID"
                 value={formData.loginId}
                 onChange={handleChange}
               />
             </div>
 
-            {/* Email ID */}
+            {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1">Email</label>
               <input
-                id="email"
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
-                placeholder="name@company.com"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg"
+                placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -95,15 +145,12 @@ const Signup = () => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1">Password</label>
               <input
-                id="password"
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
@@ -112,15 +159,12 @@ const Signup = () => {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Re-enter Password
-              </label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1">Confirm Password</label>
               <input
-                id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-gray-50 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition duration-200 sm:text-sm"
+                className="w-full px-4 py-3 bg-black border border-zinc-800 text-white rounded-lg"
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -128,28 +172,18 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* Error Message Display */}
-          {error && (
-            <div className="text-red-700 text-sm text-center bg-red-50 py-2 rounded border border-red-200">
-              {error}
-            </div>
-          )}
+          <button
+            type="submit"
+            disabled={status.loading}
+            className="w-full py-3 px-4 bg-white text-black rounded-lg font-bold hover:bg-zinc-200"
+          >
+            {status.loading ? "Creating Account..." : "Create Account"}
+          </button>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition duration-200 shadow-lg"
-            >
-              Create Account
-            </button>
-          </div>
-
-          {/* Footer Link */}
           <div className="text-center text-sm">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <a href="/signin" className="font-medium text-gray-900 hover:underline">
+            <p className="text-zinc-500">
+              Already have an account?{" "}
+              <a href="/signin" className="font-medium text-white hover:underline">
                 Sign in
               </a>
             </p>

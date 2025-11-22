@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { requestPasswordReset } from "../../lib/auth";
+// import { requestPasswordReset } from "../../lib/auth";
 
 const RequestPasswordReset = () => {
   const [email, setEmail] = useState("");

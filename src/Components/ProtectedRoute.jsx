@@ -13,10 +13,10 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // If no session → redirect to login
-  if (!session) {
-    return <Navigate to="/signin" replace />;
-  }
+  // // If no session → redirect to login
+  // if (!session) {
+  //   return <Navigate to="/signin" replace />;
+  // }
 
   return children;
 };

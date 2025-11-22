@@ -4,6 +4,8 @@ import Signup from "./Components/auth/SignUp";
 import Signin from "./Components/auth/SignIn";
 import LandingPage from "./Pages/Homepage";
 import Dashboard from "./Components/auth/dashboard/DashbBoard";
+import ReceiptsList from "./Pages/receipts/RecieptList";
+import StockList from "./Pages/stock/StockList";
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/receipts" element={<ReceiptsList />} />
+        <Route path="/stock" element={<StockList />} />
       </Routes>
     </BrowserRouter>
   );

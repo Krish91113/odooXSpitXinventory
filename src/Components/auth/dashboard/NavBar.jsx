@@ -43,9 +43,9 @@ const Navbar = () => {
               
               {activeDropdown === 'operations' && (
                 <div className="absolute top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-2">
-                  <DropdownItem label="Receipt" onClick={() => navigate('/operations/receipt')} />
-                  <DropdownItem label="Delivery" onClick={() => navigate('/operations/delivery')} />
-                  <DropdownItem label="Adjustment" onClick={() => navigate('/operations/adjustment')} />
+                  <DropdownItem label="Receipt" onClick={() => navigate('/receipts')} />
+                  <DropdownItem label="Delivery" onClick={() => navigate('/delivery')} />
+                  <DropdownItem label="Adjustment" onClick={() => navigate('/adjustment')} />
                 </div>
               )}
             </div>

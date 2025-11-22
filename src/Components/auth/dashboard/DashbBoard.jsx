@@ -2,8 +2,11 @@ import React from 'react';
 import Navbar from './Navbar';
 import KPISection from './KPISection';
 import StatsCard from './StatsCard';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       
@@ -33,6 +36,7 @@ const Dashboard = () => {
               lateCount={1}
               totalOps={6}
               color="blue"
+              onClick={() => navigate('/receipts')}
             />
 
             <StatsCard 
@@ -41,6 +45,7 @@ const Dashboard = () => {
               lateCount={2}
               totalOps={6}
               color="orange"
+              onClick={() => navigate('/delivery')}
             />
 
             <StatsCard 
@@ -49,6 +54,7 @@ const Dashboard = () => {
               lateCount={null}
               totalOps={3}
               color="green"
+              onClick={() => navigate('/adjustment')}
             />
           </div>
         </div>

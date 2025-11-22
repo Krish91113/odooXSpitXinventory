@@ -1,6 +1,6 @@
 import React from 'react';
 
-const StatsCard = ({ title, badge, lateCount, totalOps, color = 'gray' }) => {
+const StatsCard = ({ title, badge, lateCount, totalOps, color = 'gray', onClick }) => {
   const colorClasses = {
     gray: 'bg-gray-100 text-gray-700 border-gray-300',
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -9,7 +9,10 @@ const StatsCard = ({ title, badge, lateCount, totalOps, color = 'gray' }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-400 hover:shadow-lg transition-all duration-300">
+    <div 
+      onClick={onClick}
+      className={`bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-400 hover:shadow-lg transition-all duration-300 ${onClick ? 'cursor-pointer' : ''}`}
+    >
       
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -35,8 +38,16 @@ const StatsCard = ({ title, badge, lateCount, totalOps, color = 'gray' }) => {
         </div>
         
         {/* Arrow Icon */}
-        <button className="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-200 flex items-center justify-center group">
-          <svg className="w-5 h-5 text-gray-700 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button 
+          className="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-200 flex items-center justify-center group"
+          onClick={(e) => {
+            if (onClick) {
+              e.stopPropagation();
+              onClick();
+            }
+          }}
+        >
+          <svg className="w-5 h-5 text-gray-700 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

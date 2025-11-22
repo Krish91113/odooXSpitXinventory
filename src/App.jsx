@@ -1,9 +1,13 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Signup from "./Components/auth/SignUp";
 import Signin from "./Components/auth/SignIn";
+import EmailVerification from "./Components/auth/EmailVerification";
+
 import LandingPage from "./Pages/Homepage";
 import Dashboard from "./Components/auth/dashboard/DashbBoard";
+
 import ReceiptsList from "./Pages/receipts/RecieptList";
 import StockList from "./Pages/stock/StockList";
 import MoveHistoryList from "./Pages/moveHistory/MoveHistoryList";
@@ -15,9 +19,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public / Auth routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
+        {/* adjust this path if your friend used a different one */}
+        <Route path="/verify-email" element={<EmailVerification />} />
+
+        {/* Main app routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/receipts" element={<ReceiptsList />} />
         <Route path="/stock" element={<StockList />} />
@@ -28,6 +37,7 @@ function App() {
         <Route path="/delivery/:id" element={<DeliveryForm />} />
         <Route path="/delivery/:id/edit" element={<DeliveryForm />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,31 +1,40 @@
 @import "tailwindcss";
 
-/* Import Zodiak Font */
-/* Import Zodiak Font */
+/* Import Zodiak Font (decorative) */
 @import './assets/fonts/Zodiak_Complete (1)/zodiak/zodiak.css';
 
-/* Apply Zodiak globally to EVERYTHING */
+/*
+  Use Zodiak only for headings; keep body and form controls
+  on a highly-readable system sans font so inputs are legible.
+*/
 @layer base {
-  * {
-    font-family: 'Zodiak', Georgia, serif;
+  /* readable system font for body and form controls */
+  html, body, p, span, div, a, button, input, textarea, select, label {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: #111827; /* Tailwind gray-900 */
   }
-  
-  html {
-    font-family: 'Zodiak', Georgia, serif;
-  }
-  
-  body {
-    font-family: 'Zodiak', Georgia, serif;
-    font-weight: 400;
-  }
-  
+
+  /* Keep headings decorative */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Zodiak', Georgia, serif;
   }
-  
-  p, span, div, a, button, input, textarea, select, label {
-    font-family: 'Zodiak', Georgia, serif;
+
+  /* Form controls: ensure good contrast and readable placeholder */
+  input, textarea, select {
+    color: #111827; /* dark text for readability */
+    font-family: inherit; /* match body */
+    font-size: 0.95rem;
+    line-height: 1.25;
   }
+
+  ::placeholder {
+    color: #6b7280; /* Tailwind gray-500 */
+    opacity: 1;
+  }
+
+  /* When using dark backgrounds, components already set text-white —
+     leave that to utility classes; this rule only ensures inputs remain dark
+     when background is light (bg-gray-100 etc.). */
 }
 
 
